@@ -60,7 +60,7 @@ int main(void)
 			int j = rand()%n;
 			printf("Proceso padre %d ha generado: %d\n",pidC, j);
 			int fda;
-			char bufa[]="proceso escrito\n";
+			char bufa[]="algo se escribio\n";
 			char *ptra;
 			fda = shm_open(MEMORIA1 , O_RDWR, 0);
 			
@@ -70,12 +70,15 @@ int main(void)
 			}
 			
 			ptra = mmap(0, sizeof(bufa), PROT_WRITE, MAP_SHARED,fda,0);
+			printf("%p\n",ptra);
 			if (ptra==MAP_FAILED){
 				printf("Error mapeando \n");
 				exit(1);
 			}
+			ptra=ptra+k1*sizeof(bufa);
 			memcpy(ptra,bufa,sizeof(bufa));
 			close(fda);	
+			ptra=ptra+k1*sizeof(bufa);
 			k1=k1+1;
 		}
 		
@@ -110,19 +113,8 @@ int main(void)
 		
 	 }
 	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
-	 
+	
+ 
 	 
 	 else if(pidC == 0)//Esto se ejecuta solo en el proceso hijo
 	 { 
