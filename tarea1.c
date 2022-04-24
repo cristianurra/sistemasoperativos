@@ -14,7 +14,7 @@
 #define MEMORIA2 "/memoria2"
 
 
-int n=22;
+int n=220;
 
 
 int main(void)
@@ -60,7 +60,11 @@ int main(void)
 			int j = rand()%n;
 			printf("Proceso padre %d ha generado: %d\n",pidC, j);
 			int fda;
-			char bufa[]="algo se escribio\n";
+			
+			char bufa[5];
+			sprintf(bufa,"%d\n",j);
+			
+			//char bufa[]="algo se escribio%d\n";
 			char *ptra;
 			fda = shm_open(MEMORIA1 , O_RDWR, 0);
 			
@@ -83,15 +87,20 @@ int main(void)
 		}
 		
 		int k2=0;
-		srand(time(NULL)); 					//Una semilla que varía, para mas "aleatoriedad"
+		srand(time(NULL)-21); 					//Una semilla que varía, para mas "aleatoriedad"
+		
+		
 		while(k2<n)
 		{
 			int j = rand()%n;
-			printf("Proceso padreaaaa %d ha generado: %d\n",pidC, j);
+			printf("Proceso padre %d ha generado: %d\n",pidC, j);
 			int fdb;
-			char bufb[]="proceso escrito\n";
+			
+			char bufb[5];
+			sprintf(bufb,"%d\n",j);
+			
+			//char bufa[]="algo se escribio%d\n";
 			char *ptrb;
-			//printf("%d\n",ptrb);
 			fdb = shm_open(MEMORIA2 , O_RDWR, 0);
 			
 			if(fdb == -1){
@@ -100,14 +109,19 @@ int main(void)
 			}
 			
 			ptrb = mmap(0, sizeof(bufb), PROT_WRITE, MAP_SHARED,fdb,0);
+			printf("%p\n",ptrb);
 			if (ptrb==MAP_FAILED){
 				printf("Error mapeando \n");
 				exit(1);
 			}
+			ptrb=ptrb+k2*sizeof(bufb);
 			memcpy(ptrb,bufb,sizeof(bufb));
 			close(fdb);	
+			ptrb=ptrb+k2*sizeof(bufb);
 			k2=k2+1;
-		}		
+		}	
+		
+		
 		
 	
 		
