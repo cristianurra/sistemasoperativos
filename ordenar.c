@@ -10,11 +10,11 @@
 
 #define SMOBJ_NAME "\memoria1"
 
-void switche(int columna);
+void switche(int columna,int size);
 
 int main(void)
 {
-	switche(0);
+	switche(0,5);
 	return(0);
 }
 
@@ -23,13 +23,13 @@ int main(void)
 
 
 
-void switche(int columna)	//compara dos valores consecutivos
+void switche(int columna,int size)	//compara dos valores consecutivos
 {
 		int fd;
 		char *ptr1;
 		char *ptr2;
-		char bufa[5];
-		char bufb[5];
+		char bufa[size];
+		char bufb[size];
 		struct stat shmobj_st;	
 		fd = shm_open(SMOBJ_NAME, O_RDWR,0);
 
@@ -45,7 +45,7 @@ void switche(int columna)	//compara dos valores consecutivos
 			exit(1);
 			}
 		
-		ptr1=mmap(NULL,shmobj_st.st_size, PROT_READ, MAP_SHARED,fd,0)+columna*5;
+		ptr1=mmap(NULL,shmobj_st.st_size, PROT_READ, MAP_SHARED,fd,0)+columna*size;
 		ptr2=ptr1+5;	
 		if(ptr1==MAP_FAILED)
 		{
@@ -69,8 +69,8 @@ void switche(int columna)	//compara dos valores consecutivos
 			sprintf(bufa,"%d\n",aa);
 			sprintf(bufb,"%d\n",bb);
 			printf("Se cambia\n");			
-			ptr1=mmap(0,sizeof(bufa), PROT_WRITE, MAP_SHARED,fd,0)+columna*5;
-			ptr2=mmap(0,sizeof(bufb), PROT_WRITE, MAP_SHARED,fd,0)+columna*5+5;
+			ptr1=mmap(0,sizeof(bufa), PROT_WRITE, MAP_SHARED,fd,0)+columna*size;
+			ptr2=mmap(0,sizeof(bufb), PROT_WRITE, MAP_SHARED,fd,0)+columna*size+size;
 
 			memcpy(ptr1,bufb,sizeof(bufb));
 			memcpy(ptr2,bufa,sizeof(bufa));
