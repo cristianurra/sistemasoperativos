@@ -8,11 +8,17 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdlib.h>
+#include <stdbool.h>
+
 
 
 #define MEMORIA1 "/memoria1"
 #define MEMORIA2 "/memoria2"
 
+
+void swap(int* xp, int* yp);
+void bubbleSort(int arr[], int n);
+void printArray(int arr[], int size);
 
 int n=220;
 
@@ -99,7 +105,7 @@ int main(void)
 			char bufb[5];
 			sprintf(bufb,"%d\n",j);
 			
-			//char bufa[]="algo se escribio%d\n";
+			//char bufa[]="algo se escribio%d\n";   [2,2,5,\,n]
 			char *ptrb;
 			fdb = shm_open(MEMORIA2 , O_RDWR, 0);
 			
@@ -120,19 +126,13 @@ int main(void)
 			ptrb=ptrb+k2*sizeof(bufb);
 			k2=k2+1;
 		}	
-		
-		
-		
-	
-		
+				
 	 }
 	 
-	
- 
 	 
 	 else if(pidC == 0)//Esto se ejecuta solo en el proceso hijo
 	 { 
-		 
+		burbujas();
 	 }
 	 
 	 else
@@ -144,7 +144,100 @@ int main(void)
 
 	 }
 	 
-	 return 0;
-	 
-	 
+	 return 0; 
  }
+ 
+ 
+ 
+ 
+ 
+ 
+void burbujas()
+{	
+	for(k=1;k<1000;k++){		//calcular valor optimo de k
+		int fd;
+		char *ptr;
+		struct stat shmobj_st;
+	
+		fd = shm_open(SMOBJ_NAME, O_RDONLY,0);
+	
+		if(fd == -1){
+			printf("Error fd %s\n", strerror(errno));
+			exit(1);
+			}
+			
+		if(fstat(fd, &shmobj_st)==1)
+			{
+			printf("error fstat \n");
+			exit(1);
+			}
+		
+		ptr=mmap(NULL,shmobj_st.st_size, PROT_READ, MAP_SHARED,fd,0);	
+		ptr=ptr+k*sizeof(bufb);
+		
+		if(ptr==MAP_FAILED)
+		{
+			printf("Fallo el proceso de mapeo leyendo el proceso %s\n",strerror(errno));
+			exit(1);
+		}
+		printf("%s\n",ptr);
+		close(fd);
+		
+		return(0);	
+			
+		
+		
+		
+		
+		
+	} 
+	
+	
+	
+	
+	
+}
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+void swap(int* xp, int* yp)
+{
+    int temp = *xp;
+    *xp = *yp;
+    *yp = temp;
+}
+ 
+ 
+void bubbleSort(int arr[], int n)
+{
+    int i, j;
+    for (i = 0; i < n - 1; i++)
+ 
+        // Last i elements are already in place
+        for (j = 0; j < n - i - 1; j++)
+            if (arr[j] > arr[j + 1])
+                swap(&arr[j], &arr[j + 1]);
+}
+ 
+void printArray(int arr[], int size)
+{
+    int i;
+    for (i = 0; i < size; i++)
+        printf("%d ", arr[i]);
+    printf("\n");
+}
+ 
+ 
+ 
+ 
