@@ -9,19 +9,16 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <errno.h>
 
-
+void switche(int columna,int size);
 
 #define MEMORIA1 "/memoria1"
 #define MEMORIA2 "/memoria2"
 
 
-void swap(int* xp, int* yp);
-void bubbleSort(int arr[], int n);
-void printArray(int arr[], int size);
-
-int n=220;
-
+int n=150;
+int sizeint=8;
 
 int main(void)
  {
@@ -33,7 +30,7 @@ int main(void)
 	 
 	 if(pidC>0) //Esto se ejecuta solo en el proceso padre
 		{	
-		int SMOBJ_SIZE=900;	
+		int SMOBJ_SIZE=n*sizeint;	
 			
 		int fd1;
 		fd1 = shm_open(MEMORIA1 , O_CREAT | O_RDWR, 00600);
@@ -67,7 +64,7 @@ int main(void)
 			printf("Proceso padre %d ha generado: %d\n",pidC, j);
 			int fda;
 			
-			char bufa[5];
+			char bufa[sizeint];
 			sprintf(bufa,"%d\n",j);
 			
 			//char bufa[]="algo se escribio%d\n";
@@ -79,21 +76,21 @@ int main(void)
 			exit(1);
 			}
 			
-			ptra = mmap(0, sizeof(bufa), PROT_WRITE, MAP_SHARED,fda,0);
+			ptra = mmap(0, sizeint, PROT_WRITE, MAP_SHARED,fda,0);
 			printf("%p\n",ptra);
 			if (ptra==MAP_FAILED){
 				printf("Error mapeando \n");
 				exit(1);
 			}
-			ptra=ptra+k1*sizeof(bufa);
-			memcpy(ptra,bufa,sizeof(bufa));
+			ptra=ptra+k1*sizeint;
+			memcpy(ptra,bufa,sizeint);
 			close(fda);	
-			ptra=ptra+k1*sizeof(bufa);
+			ptra=ptra+k1*sizeint;
 			k1=k1+1;
 		}
 		
 		int k2=0;
-		srand(time(NULL)-21); 					//Una semilla que varía, para mas "aleatoriedad"
+		srand(time(NULL)+21); 					//Una semilla que varía, para mas "aleatoriedad"
 		
 		
 		while(k2<n)
@@ -102,7 +99,7 @@ int main(void)
 			printf("Proceso padre %d ha generado: %d\n",pidC, j);
 			int fdb;
 			
-			char bufb[5];
+			char bufb[sizeint];
 			sprintf(bufb,"%d\n",j);
 			
 			//char bufa[]="algo se escribio%d\n";   [2,2,5,\,n]
@@ -114,16 +111,16 @@ int main(void)
 			exit(1);
 			}
 			
-			ptrb = mmap(0, sizeof(bufb), PROT_WRITE, MAP_SHARED,fdb,0);
+			ptrb = mmap(0, sizeint, PROT_WRITE, MAP_SHARED,fdb,0);
 			printf("%p\n",ptrb);
 			if (ptrb==MAP_FAILED){
 				printf("Error mapeando \n");
 				exit(1);
 			}
-			ptrb=ptrb+k2*sizeof(bufb);
-			memcpy(ptrb,bufb,sizeof(bufb));
+			ptrb=ptrb+k2*sizeint;
+			memcpy(ptrb,bufb,sizeint);
 			close(fdb);	
-			ptrb=ptrb+k2*sizeof(bufb);
+			ptrb=ptrb+k2*sizeint;
 			k2=k2+1;
 		}	
 				
@@ -131,9 +128,27 @@ int main(void)
 	 
 	 
 	 else if(pidC == 0)//Esto se ejecuta solo en el proceso hijo
+	 
 	 { 
-		burbujas();
+		
+		
+		int s=0;
+		while(s<4*n){
+			int i=0;
+			while(i<n)
+				{
+					switche(i,sizeint);
+					i=i+1;
+				}
+			s=s+1;
+			}
+	return(0);
+		
+		
+
 	 }
+	 
+	 
 	 
 	 else
 	 {
@@ -152,15 +167,17 @@ int main(void)
  
  
  
-void burbujas()
-{	
-	for(k=1;k<1000;k++){		//calcular valor optimo de k
+void switche(int columna,int size)	//compara dos valores consecutivos
+{
 		int fd;
-		char *ptr;
-		struct stat shmobj_st;
-	
-		fd = shm_open(SMOBJ_NAME, O_RDONLY,0);
-	
+		char *ptr1;
+		char *ptr2;
+		char bufa[size];
+		char bufb[size];
+		struct stat shmobj_st;	
+		fd = shm_open(MEMORIA1, O_RDWR,0);
+
+		
 		if(fd == -1){
 			printf("Error fd %s\n", strerror(errno));
 			exit(1);
@@ -172,72 +189,42 @@ void burbujas()
 			exit(1);
 			}
 		
-		ptr=mmap(NULL,shmobj_st.st_size, PROT_READ, MAP_SHARED,fd,0);	
-		ptr=ptr+k*sizeof(bufb);
-		
-		if(ptr==MAP_FAILED)
+		ptr1=mmap(NULL,shmobj_st.st_size, PROT_READ, MAP_SHARED,fd,0)+columna*size;
+		ptr2=ptr1+size;	
+		if(ptr1==MAP_FAILED)
 		{
 			printf("Fallo el proceso de mapeo leyendo el proceso %s\n",strerror(errno));
 			exit(1);
 		}
-		printf("%s\n",ptr);
-		close(fd);
 		
-		return(0);	
+		char *a=ptr1;
+		char *b=ptr2;
+		
+		
+		printf("%s\n",a);		
+		printf("%s\n",b);
+		
+		int aa =  atoi(a);
+		int bb = atoi(b);
+		
+		if(bb<aa)
+		{
 			
-		
-		
-		
-		
-		
-	} 
+			sprintf(bufa,"%d\n",aa);
+			sprintf(bufb,"%d\n",bb);
+			printf("Se cambia\n");			
+			ptr1=mmap(0,sizeof(bufa), PROT_WRITE, MAP_SHARED,fd,0)+columna*size;
+			ptr2=mmap(0,sizeof(bufb), PROT_WRITE, MAP_SHARED,fd,0)+columna*size+size;
+
+			memcpy(ptr1,bufb,sizeof(bufb));
+			memcpy(ptr2,bufa,sizeof(bufa));
 	
-	
-	
-	
+		}
+		
+		
+		close(fd);
+		return(0);	
 	
 }
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
-void swap(int* xp, int* yp)
-{
-    int temp = *xp;
-    *xp = *yp;
-    *yp = temp;
-}
- 
- 
-void bubbleSort(int arr[], int n)
-{
-    int i, j;
-    for (i = 0; i < n - 1; i++)
- 
-        // Last i elements are already in place
-        for (j = 0; j < n - i - 1; j++)
-            if (arr[j] > arr[j + 1])
-                swap(&arr[j], &arr[j + 1]);
-}
- 
-void printArray(int arr[], int size)
-{
-    int i;
-    for (i = 0; i < size; i++)
-        printf("%d ", arr[i]);
-    printf("\n");
-}
- 
- 
  
  
