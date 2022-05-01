@@ -17,8 +17,8 @@ void switche(int columna,int size);
 #define MEMORIA2 "/memoria2"
 
 
-int n=150;
-int sizeint=8;
+int n=200;
+int sizeint=5;
 
 int main(void)
  {
@@ -126,38 +126,33 @@ int main(void)
 				
 	 }
 	 
-	 
-	 else if(pidC == 0)//Esto se ejecuta solo en el proceso hijo
-	 
-	 { 
-		
-		
-		int s=0;
-		while(s<4*n){
-			int i=0;
-			while(i<n)
-				{
-					switche(i,sizeint);
-					i=i+1;
-				}
-			s=s+1;
-			}
+	  
+	 else if(pidC==0)//Esto se ejecuta solo en el proceso hijo
+{
+	
+	int f=0;
+	while(f<1000)
+	{	int i=0;
+		while(i<200)
+		{
+			switche(i,5);
+			i=i+1;
+		}
+	}
+	f=f+1;
 	return(0);
-		
-		
-
-	 }
-	 
-	 
+}
+	 	 
 	 
 	 else
 	 {
 		 printf("El proceso hijo no pudo ser creado\n");
 	 }
-	 while(1)
-	 {
-
-	 }
+	 
+	 printf("BAndera\n");
+	  
+	 
+	 
 	 
 	 return 0; 
  }
@@ -172,10 +167,10 @@ void switche(int columna,int size)	//compara dos valores consecutivos
 		int fd;
 		char *ptr1;
 		char *ptr2;
-		char bufa[size];
-		char bufb[size];
+		char bufaa[size];
+		char bufbb[size];
 		struct stat shmobj_st;	
-		fd = shm_open(MEMORIA1, O_RDWR,0);
+		fd = shm_open(MEMORIA2, O_RDWR,0);
 
 		
 		if(fd == -1){
@@ -201,8 +196,8 @@ void switche(int columna,int size)	//compara dos valores consecutivos
 		char *b=ptr2;
 		
 		
-		printf("%s\n",a);		
-		printf("%s\n",b);
+		//printf("%s\n",a);		
+		//printf("%s\n",b);
 		
 		int aa =  atoi(a);
 		int bb = atoi(b);
@@ -210,21 +205,19 @@ void switche(int columna,int size)	//compara dos valores consecutivos
 		if(bb<aa)
 		{
 			
-			sprintf(bufa,"%d\n",aa);
-			sprintf(bufb,"%d\n",bb);
-			printf("Se cambia\n");			
-			ptr1=mmap(0,sizeof(bufa), PROT_WRITE, MAP_SHARED,fd,0)+columna*size;
-			ptr2=mmap(0,sizeof(bufb), PROT_WRITE, MAP_SHARED,fd,0)+columna*size+size;
+			sprintf(bufaa,"%d\n",aa);
+			sprintf(bufbb,"%d\n",bb);
+			//printf("Se cambia\n");			
+			ptr1=mmap(0,sizeof(bufaa), PROT_WRITE, MAP_SHARED,fd,0)+columna*size;
+			ptr2=mmap(0,sizeof(bufbb), PROT_WRITE, MAP_SHARED,fd,0)+columna*size+size;
 
-			memcpy(ptr1,bufb,sizeof(bufb));
-			memcpy(ptr2,bufa,sizeof(bufa));
-	
+			memcpy(ptr1,bufbb,sizeof(bufbb));
+			memcpy(ptr2,bufaa,sizeof(bufaa));
+
+			
 		}
 		
 		
 		close(fd);
-		return(0);	
-	
 }
- 
  
