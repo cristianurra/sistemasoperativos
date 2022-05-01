@@ -14,7 +14,7 @@ void switche(int columna);
 
 int main(void)
 {
-	switche(4);
+	switche(5);
 	return(0);
 }
 
@@ -49,8 +49,13 @@ void switche(int columna)	//compara dos valores consecutivos
 			printf("Fallo el proceso de mapeo leyendo el proceso %s\n",strerror(errno));
 			exit(1);
 		}
-		printf("%s\n",ptr1);		
-		printf("%s\n",ptr2);
+		
+		char *a=ptr1;
+		char *b=ptr2;
+		
+		
+		printf("%s\n",a);		
+		printf("%s\n",b);
 		close(fd);
 		
 		return(0);	
