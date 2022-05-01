@@ -14,13 +14,15 @@ void switche(int columna,int size);
 
 int main(void)
 {
-	switche(0,5);
+	int i=0;
+	while(i<150)
+	{
+		switche(i,8);
+		i=i+1;
+	}
+	
 	return(0);
 }
-
-
-
-
 
 
 void switche(int columna,int size)	//compara dos valores consecutivos
@@ -46,7 +48,7 @@ void switche(int columna,int size)	//compara dos valores consecutivos
 			}
 		
 		ptr1=mmap(NULL,shmobj_st.st_size, PROT_READ, MAP_SHARED,fd,0)+columna*size;
-		ptr2=ptr1+5;	
+		ptr2=ptr1+size;	
 		if(ptr1==MAP_FAILED)
 		{
 			printf("Fallo el proceso de mapeo leyendo el proceso %s\n",strerror(errno));
