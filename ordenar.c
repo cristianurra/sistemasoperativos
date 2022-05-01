@@ -14,7 +14,7 @@ void switche(int columna);
 
 int main(void)
 {
-	switche(5);
+	switche(0);
 	return(0);
 }
 
@@ -28,8 +28,11 @@ void switche(int columna)	//compara dos valores consecutivos
 		int fd;
 		char *ptr1;
 		char *ptr2;
+		char bufa[5];
+		char bufb[5];
 		struct stat shmobj_st;	
-		fd = shm_open(SMOBJ_NAME, O_RDONLY,0);
+		fd = shm_open(SMOBJ_NAME, O_RDWR,0);
+
 		
 		if(fd == -1){
 			printf("Error fd %s\n", strerror(errno));
@@ -56,20 +59,27 @@ void switche(int columna)	//compara dos valores consecutivos
 		
 		printf("%s\n",a);		
 		printf("%s\n",b);
-		a=atoi(a);
-		b=atoi(b);
 		
-		if(b<a)
+		int aa =  atoi(a);
+		int bb = atoi(b);
+		
+		if(bb<aa)
 		{
-			sprintf(bufa,"%d\n",a);
-			sprintf(bufb,"%d\n",b);
-			printf("Se cambia\n");
+			
+			sprintf(bufa,"%d\n",aa);
+			sprintf(bufb,"%d\n",bb);
+			printf("Se cambia\n");			
+			ptr1=mmap(0,sizeof(bufa), PROT_WRITE, MAP_SHARED,fd,0)+columna*5;
+			ptr2=mmap(0,sizeof(bufb), PROT_WRITE, MAP_SHARED,fd,0)+columna*5+5;
+
+			memcpy(ptr1,bufb,sizeof(bufb));
+			memcpy(ptr2,bufa,sizeof(bufa));
+
 			
 		}
 		
 		
 		close(fd);
-		
 		return(0);	
 	
 }
