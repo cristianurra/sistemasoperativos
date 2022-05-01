@@ -56,6 +56,18 @@ void switche(int columna)	//compara dos valores consecutivos
 		
 		printf("%s\n",a);		
 		printf("%s\n",b);
+		a=atoi(a);
+		b=atoi(b);
+		
+		if(b<a)
+		{
+			sprintf(bufa,"%d\n",a);
+			sprintf(bufb,"%d\n",b);
+			printf("Se cambia\n");
+			
+		}
+		
+		
 		close(fd);
 		
 		return(0);	
