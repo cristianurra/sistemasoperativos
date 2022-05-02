@@ -14,35 +14,35 @@
 void switcha(int columna,int size);
 void leer_posix(int columna,int size);
 
-#define MEMORIA1 "/memoria1"
+#define MEMORIA1 "/memoria1"			//Se crearan dos memorias compartidas posix
 #define MEMORIA2 "/memoria2"
 
 
-int n;
+int n;		//corresponde al n solicitado en la tarea
 
-int sizeint=6;
+int sizeint=8;		//corresponde al espacio asignado a cada numero. Notese eque en la posix cada dato es iingresado como cadena de caracteres terminada en "\" y "n".
 
 int main(void)
  {
 	 printf("Ingresar un valor de n: ");
-		scanf("%d", &n);
+	 scanf("%d", &n);								//aca se solicia al usuario el valor de n
 	 pid_t pidC;
 	 
 	 printf("**proceso PID =%d comienza\n",getpid());
-	 pidC = fork();
+	 pidC = fork();									//se hace un fork para generar el proceso hijo
 	 printf("**proceso PID =%d, pidC = %d ejecutandosen\n",getpid(),pidC);
 	 
 	 if(pidC>0) //Esto se ejecuta solo en el proceso padre
 		{	
-		int SMOBJ_SIZE=n*sizeint+20;	
+		int SMOBJ_SIZE=n*sizeint+20;	//se define el tamaño de cada memoria posix. Se considera el tamaño de cada dato multiplicado por el total de datos. 
 			
-		int fd1;
-		fd1 = shm_open(MEMORIA1 , O_CREAT | O_RDWR, 00600);
+		int fd1;						// se crea la variable file descriptor
+		fd1 = shm_open(MEMORIA1 , O_CREAT | O_RDWR, 00600);	//Se define cada file descriptor (uno por cada memoria compartida)
 		int fd2;
 		fd2 = shm_open(MEMORIA2 , O_CREAT | O_RDWR, 00600);	
 		
 		
-		if(fd1 == -1){
+		if(fd1 == -1){				//Mensajes en caso de error
 			printf("hubo un error al crear memoria compartida 1\n");
 			exit(1);
 		}
@@ -61,7 +61,7 @@ int main(void)
 			
 		
 		printf("\nConjunto 1 desordenado\n ");
-		int k1=0;
+		int k1=0;							//Se inicia
 		srand(time(NULL)); 					//Una semilla que varía, para mas "aleatoriedad"
 		while(k1<n)
 		{
@@ -166,11 +166,6 @@ int main(void)
 	printf("\nProceso padre finalizado\n"); 
 	 return 0; 
  }
- 
- 
- 
- 
- 
  
 void switcha(int columna,int size)	//compara dos valores consecutivos
 {
