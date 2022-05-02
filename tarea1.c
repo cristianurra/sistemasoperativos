@@ -14,8 +14,8 @@
 void switcha(int columna,int size);
 void leer_posix(int columna,int size);
 
-#define MEMORIA1 "/memoria1"			//Se crearan dos memorias compartidas posix
-#define MEMORIA2 "/memoria2"
+#define MEMORIA1 "/urra_memoria1"			//Se crearan dos memorias compartidas posix
+#define MEMORIA2 "/urra_memoria2"
 
 
 int n;		//corresponde al n solicitado en la tarea
