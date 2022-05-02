@@ -11,13 +11,14 @@
 #include <stdbool.h>
 #include <errno.h>
 
-void switche(int columna,int size);
+int switcha(int columna,int size);
+void switchb(int columna,int size);
 
 #define MEMORIA1 "/memoria1"
 #define MEMORIA2 "/memoria2"
 
 
-int n=200;
+int n=256;
 int sizeint=5;
 
 int main(void)
@@ -30,7 +31,7 @@ int main(void)
 	 
 	 if(pidC>0) //Esto se ejecuta solo en el proceso padre
 		{	
-		int SMOBJ_SIZE=n*sizeint;	
+		int SMOBJ_SIZE=n*sizeint+20;	
 			
 		int fd1;
 		fd1 = shm_open(MEMORIA1 , O_CREAT | O_RDWR, 00600);
@@ -133,13 +134,16 @@ int main(void)
 	int f=0;
 	while(f<1000)
 	{	int i=0;
-		while(i<200)
+
+		while(i<n)
 		{
-			switche(i,5);
+			switcha(i,sizeint);
+			switchb(i,sizeint);
 			i=i+1;
 		}
-	}
 	f=f+1;
+	}
+
 	return(0);
 }
 	 	 
@@ -150,7 +154,7 @@ int main(void)
 	 }
 	 
 	 printf("BAndera\n");
-	  
+	wait(3);
 	 
 	 
 	 
@@ -162,7 +166,66 @@ int main(void)
  
  
  
-void switche(int columna,int size)	//compara dos valores consecutivos
+int switcha(int columna,int size)	//compara dos valores consecutivos
+{
+		int fd;
+		char *ptr1;
+		char *ptr2;
+		char bufaa[size];
+		char bufbb[size];
+		struct stat shmobj_st;	
+		fd = shm_open(MEMORIA1, O_RDWR,0);
+
+		
+		if(fd == -1){
+			printf("Error fd %s\n", strerror(errno));
+			exit(1);
+			}
+			
+		if(fstat(fd, &shmobj_st)==1)
+			{
+			printf("error fstat \n");
+			exit(1);
+			}
+		
+		ptr1=mmap(NULL,shmobj_st.st_size, PROT_READ, MAP_SHARED,fd,0)+columna*size;
+		ptr2=ptr1+size;	
+		if(ptr1==MAP_FAILED)
+		{
+			printf("Fallo el proceso de mapeo leyendo el proceso %s\n",strerror(errno));
+			exit(1);
+		}
+		
+		char *a=ptr1;
+		char *b=ptr2;
+		
+		
+		//printf("%s\n",a);		
+		//printf("%s\n",b);
+		
+		int aa =  atoi(a);
+		int bb = atoi(b);
+		
+		if(bb<aa)
+		{
+			
+			sprintf(bufaa,"%d\n",aa);
+			sprintf(bufbb,"%d\n",bb);
+			//printf("Se cambia\n");			
+			ptr1=mmap(0,size, PROT_WRITE, MAP_SHARED,fd,0)+columna*size;
+			ptr2=mmap(0,size, PROT_WRITE, MAP_SHARED,fd,0)+columna*size+size;
+
+			memcpy(ptr1,bufbb,sizeof(bufbb));
+			memcpy(ptr2,bufaa,sizeof(bufaa));
+			close(fd);
+			return(1);
+		}
+		
+		
+		close(fd);
+}
+ 
+ void switchb(int columna,int size)	//compara dos valores consecutivos
 {
 		int fd;
 		char *ptr1;
@@ -208,11 +271,11 @@ void switche(int columna,int size)	//compara dos valores consecutivos
 			sprintf(bufaa,"%d\n",aa);
 			sprintf(bufbb,"%d\n",bb);
 			//printf("Se cambia\n");			
-			ptr1=mmap(0,sizeof(bufaa), PROT_WRITE, MAP_SHARED,fd,0)+columna*size;
-			ptr2=mmap(0,sizeof(bufbb), PROT_WRITE, MAP_SHARED,fd,0)+columna*size+size;
+			ptr1=mmap(0,size, PROT_WRITE, MAP_SHARED,fd,0)+columna*size;
+			ptr2=mmap(0,size, PROT_WRITE, MAP_SHARED,fd,0)+columna*size+size;
 
-			memcpy(ptr1,bufbb,sizeof(bufbb));
-			memcpy(ptr2,bufaa,sizeof(bufaa));
+			memcpy(ptr1,bufbb,size);
+			memcpy(ptr2,bufaa,size);
 
 			
 		}
@@ -220,4 +283,3 @@ void switche(int columna,int size)	//compara dos valores consecutivos
 		
 		close(fd);
 }
- 
