@@ -11,23 +11,26 @@
 #include <stdbool.h>
 #include <errno.h>
 
-int switcha(int columna,int size);
-void switchb(int columna,int size);
+void switcha(int columna,int size);
+void leer_posix(int columna,int size);
 
 #define MEMORIA1 "/memoria1"
 #define MEMORIA2 "/memoria2"
 
 
-int n=256;
-int sizeint=5;
+int n;
+
+int sizeint=6;
 
 int main(void)
  {
+	 printf("Ingresar un valor de n: ");
+		scanf("%d", &n);
 	 pid_t pidC;
 	 
 	 printf("**proceso PID =%d comienza\n",getpid());
 	 pidC = fork();
-	 printf("**proceso PID =%d, pidC = %d ejecutrandosen\n",getpid(),pidC);
+	 printf("**proceso PID =%d, pidC = %d ejecutandosen\n",getpid(),pidC);
 	 
 	 if(pidC>0) //Esto se ejecuta solo en el proceso padre
 		{	
@@ -57,12 +60,13 @@ int main(void)
 			
 			
 		
+		printf("\nConjunto 1 desordenado\n ");
 		int k1=0;
 		srand(time(NULL)); 					//Una semilla que varía, para mas "aleatoriedad"
 		while(k1<n)
 		{
 			int j = rand()%n;
-			printf("Proceso padre %d ha generado: %d\n",pidC, j);
+			printf("%d, ", j);
 			int fda;
 			
 			char bufa[sizeint];
@@ -78,7 +82,7 @@ int main(void)
 			}
 			
 			ptra = mmap(0, sizeint, PROT_WRITE, MAP_SHARED,fda,0);
-			printf("%p\n",ptra);
+			//printf("%p\n",ptra);
 			if (ptra==MAP_FAILED){
 				printf("Error mapeando \n");
 				exit(1);
@@ -89,7 +93,7 @@ int main(void)
 			ptra=ptra+k1*sizeint;
 			k1=k1+1;
 		}
-		
+		printf("\nConjunto 2 desordenado\n");
 		int k2=0;
 		srand(time(NULL)+21); 					//Una semilla que varía, para mas "aleatoriedad"
 		
@@ -97,7 +101,7 @@ int main(void)
 		while(k2<n)
 		{
 			int j = rand()%n;
-			printf("Proceso padre %d ha generado: %d\n",pidC, j);
+			printf("%d, ", j);
 			int fdb;
 			
 			char bufb[sizeint];
@@ -113,7 +117,7 @@ int main(void)
 			}
 			
 			ptrb = mmap(0, sizeint, PROT_WRITE, MAP_SHARED,fdb,0);
-			printf("%p\n",ptrb);
+			//printf("%p\n",ptrb);
 			if (ptrb==MAP_FAILED){
 				printf("Error mapeando \n");
 				exit(1);
@@ -129,35 +133,37 @@ int main(void)
 	 
 	  
 	 else if(pidC==0)//Esto se ejecuta solo en el proceso hijo
-{
-	
+	{
+	wait(2);
 	int f=0;
 	while(f<1000)
 	{	int i=0;
 
-		while(i<n)
+		while(i<n+1)
 		{
 			switcha(i,sizeint);
-			switchb(i,sizeint);
 			i=i+1;
 		}
 	f=f+1;
 	}
-
+	exit(0);
 	return(0);
-}
+	}
 	 	 
 	 
 	 else
 	 {
 		 printf("El proceso hijo no pudo ser creado\n");
 	 }
-	 
-	 printf("BAndera\n");
 	wait(3);
 	 
-	 
-	 
+	printf("\n Conjunto 1 ordenado\n");
+	int j=0;
+	while(j<n){
+		leer_posix(j,sizeint);
+		j=j+1;
+	}
+	printf("\nProceso padre finalizado\n"); 
 	 return 0; 
  }
  
@@ -166,7 +172,7 @@ int main(void)
  
  
  
-int switcha(int columna,int size)	//compara dos valores consecutivos
+void switcha(int columna,int size)	//compara dos valores consecutivos
 {
 		int fd;
 		char *ptr1;
@@ -218,14 +224,13 @@ int switcha(int columna,int size)	//compara dos valores consecutivos
 			memcpy(ptr1,bufbb,sizeof(bufbb));
 			memcpy(ptr2,bufaa,sizeof(bufaa));
 			close(fd);
-			return(1);
 		}
 		
 		
 		close(fd);
 }
  
- void switchb(int columna,int size)	//compara dos valores consecutivos
+void leer_posix(int columna,int size)	//compara dos valores consecutivos
 {
 		int fd;
 		char *ptr1;
@@ -233,7 +238,7 @@ int switcha(int columna,int size)	//compara dos valores consecutivos
 		char bufaa[size];
 		char bufbb[size];
 		struct stat shmobj_st;	
-		fd = shm_open(MEMORIA2, O_RDWR,0);
+		fd = shm_open(MEMORIA1, O_RDWR,0);
 
 		
 		if(fd == -1){
@@ -248,7 +253,7 @@ int switcha(int columna,int size)	//compara dos valores consecutivos
 			}
 		
 		ptr1=mmap(NULL,shmobj_st.st_size, PROT_READ, MAP_SHARED,fd,0)+columna*size;
-		ptr2=ptr1+size;	
+		
 		if(ptr1==MAP_FAILED)
 		{
 			printf("Fallo el proceso de mapeo leyendo el proceso %s\n",strerror(errno));
@@ -256,30 +261,8 @@ int switcha(int columna,int size)	//compara dos valores consecutivos
 		}
 		
 		char *a=ptr1;
-		char *b=ptr2;
-		
-		
-		//printf("%s\n",a);		
-		//printf("%s\n",b);
-		
 		int aa =  atoi(a);
-		int bb = atoi(b);
-		
-		if(bb<aa)
-		{
-			
-			sprintf(bufaa,"%d\n",aa);
-			sprintf(bufbb,"%d\n",bb);
-			//printf("Se cambia\n");			
-			ptr1=mmap(0,size, PROT_WRITE, MAP_SHARED,fd,0)+columna*size;
-			ptr2=mmap(0,size, PROT_WRITE, MAP_SHARED,fd,0)+columna*size+size;
 
-			memcpy(ptr1,bufbb,size);
-			memcpy(ptr2,bufaa,size);
-
-			
-		}
-		
-		
+		printf("%d, ",aa);
 		close(fd);
 }
