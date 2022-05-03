@@ -11,8 +11,8 @@
 #include <stdbool.h>
 #include <errno.h>
 
-void switcha(int columna,int size);
-void leer_posix(int columna,int size);
+void bubble_sort(int fila,int size);
+void leer_posix(int fila,int size);
 
 #define MEMORIA1 "/urra_memoria1"			//Se crearan dos memorias compartidas posix
 #define MEMORIA2 "/urra_memoria2"
@@ -23,14 +23,14 @@ int n;		//corresponde al n solicitado en la tarea
 int sizeint=8;		//corresponde al espacio asignado a cada numero. Notese eque en la posix cada dato es iingresado como cadena de caracteres terminada en "\" y "n".
 
 int main(void)
- {
-	 printf("Ingresar un valor de n: ");
+ {	printf("Los detalles y logica de funcionamiento se encuentran en el archivo README.md\n");
+	 printf("Ingresar un valor de n menor a 299: ");
 	 scanf("%d", &n);								//aca se solicia al usuario el valor de n
 	 pid_t pidC;
 	 
-	 printf("**proceso PID =%d comienza\n",getpid());
+	 //printf("**proceso PID =%d comienza\n",getpid());
 	 pidC = fork();									//se hace un fork para generar el proceso hijo
-	 printf("**proceso PID =%d, pidC = %d ejecutandosen\n",getpid(),pidC);
+	 //printf("**proceso PID =%d, pidC = %d ejecutandosen\n",getpid(),pidC);
 	 
 	 if(pidC>0) //Esto se ejecuta solo en el proceso padre
 		{	
@@ -60,7 +60,7 @@ int main(void)
 			
 			
 		
-		printf("\nConjunto 1 desordenado\n ");
+		printf("\n\n========== Conjunto 1 desordenado ==========\n ");
 		int k1=0;							//Se inicia
 		srand(time(NULL)); 					//Una semilla que varía, para mas "aleatoriedad"
 		while(k1<n)
@@ -88,12 +88,12 @@ int main(void)
 				exit(1);
 			}
 			ptra=ptra+k1*sizeint;
-			memcpy(ptra,bufa,sizeint);
+			memcpy(ptra,bufa,sizeint);		//aqui se registra en la posix el valor obtenido
 			close(fda);	
-			ptra=ptra+k1*sizeint;
+			ptra=ptra+k1*sizeint;		//el puntero se mueve al siguiente grupo espacio de memoria
 			k1=k1+1;
 		}
-		printf("\nConjunto 2 desordenado\n");
+		printf("\n\n========== Conjunto 2 desordenado ==========\n");
 		int k2=0;
 		srand(time(NULL)+21); 					//Una semilla que varía, para mas "aleatoriedad"
 		
@@ -141,12 +141,12 @@ int main(void)
 
 		while(i<n+1)
 		{
-			switcha(i,sizeint);
+			bubble_sort(i,sizeint);
 			i=i+1;
 		}
 	f=f+1;
 	}
-	exit(0);
+	exit(0);		//para asegurar el fin del proceso hijo
 	return(0);
 	}
 	 	 
@@ -157,7 +157,7 @@ int main(void)
 	 }
 	wait(3);
 	 
-	printf("\n Conjunto 1 ordenado\n");
+	printf("\n\n========== Conjunto 1 ordenado con Bubble Sort ==========\n");
 	int j=0;
 	while(j<n){
 		leer_posix(j,sizeint);
@@ -167,7 +167,7 @@ int main(void)
 	 return 0; 
  }
  
-void switcha(int columna,int size)	//compara dos valores consecutivos
+void bubble_sort(int fila,int size)	//compara dos valores consecutivos
 {
 		int fd;
 		char *ptr1;
@@ -175,7 +175,7 @@ void switcha(int columna,int size)	//compara dos valores consecutivos
 		char bufaa[size];
 		char bufbb[size];
 		struct stat shmobj_st;	
-		fd = shm_open(MEMORIA1, O_RDWR,0);
+		fd = shm_open(MEMORIA1, O_RDWR,0);		//se crea el file descriptor
 
 		
 		if(fd == -1){
@@ -189,7 +189,7 @@ void switcha(int columna,int size)	//compara dos valores consecutivos
 			exit(1);
 			}
 		
-		ptr1=mmap(NULL,shmobj_st.st_size, PROT_READ, MAP_SHARED,fd,0)+columna*size;
+		ptr1=mmap(NULL,shmobj_st.st_size, PROT_READ, MAP_SHARED,fd,0)+fila*size;
 		ptr2=ptr1+size;	
 		if(ptr1==MAP_FAILED)
 		{
@@ -204,19 +204,19 @@ void switcha(int columna,int size)	//compara dos valores consecutivos
 		//printf("%s\n",a);		
 		//printf("%s\n",b);
 		
-		int aa =  atoi(a);
+		int aa =  atoi(a);		//para conertir una cadena de caracteres en un int, para poder compararlos.
 		int bb = atoi(b);
 		
 		if(bb<aa)
 		{
 			
-			sprintf(bufaa,"%d\n",aa);
+			sprintf(bufaa,"%d\n",aa);		//aqui se convierte el valor int en una cadena de caracteres para poder ser introducida en la posix.
 			sprintf(bufbb,"%d\n",bb);
 			//printf("Se cambia\n");			
-			ptr1=mmap(0,size, PROT_WRITE, MAP_SHARED,fd,0)+columna*size;
-			ptr2=mmap(0,size, PROT_WRITE, MAP_SHARED,fd,0)+columna*size+size;
+			ptr1=mmap(0,size, PROT_WRITE, MAP_SHARED,fd,0)+fila*size;
+			ptr2=mmap(0,size, PROT_WRITE, MAP_SHARED,fd,0)+fila*size+size;
 
-			memcpy(ptr1,bufbb,sizeof(bufbb));
+			memcpy(ptr1,bufbb,sizeof(bufbb));		//aqui se pasan los datos a la posix en el nuevo orden
 			memcpy(ptr2,bufaa,sizeof(bufaa));
 			close(fd);
 		}
@@ -225,8 +225,8 @@ void switcha(int columna,int size)	//compara dos valores consecutivos
 		close(fd);
 }
  
-void leer_posix(int columna,int size)	//compara dos valores consecutivos
-{
+void leer_posix(int fila,int size)	//Esta funcion es para desplegar en pantalla los valores almacenados en la posix
+		{
 		int fd;
 		char *ptr1;
 		char *ptr2;
@@ -247,7 +247,7 @@ void leer_posix(int columna,int size)	//compara dos valores consecutivos
 			exit(1);
 			}
 		
-		ptr1=mmap(NULL,shmobj_st.st_size, PROT_READ, MAP_SHARED,fd,0)+columna*size;
+		ptr1=mmap(NULL,shmobj_st.st_size, PROT_READ, MAP_SHARED,fd,0)+fila*size;
 		
 		if(ptr1==MAP_FAILED)
 		{
