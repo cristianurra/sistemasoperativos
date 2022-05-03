@@ -6,7 +6,7 @@ Ignacio Veragua
 
 Cristhian Urra
 
-#Descripcion del programa
+# Descripcion del programa
 
 Se trabaja utilizando un minimo de ram, puesto que cada dato es introducido en la posix instantaneamente despues de haber sido creado. 
 Los datos son almacenados fila por fila en la memoria posix.
