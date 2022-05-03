@@ -343,30 +343,35 @@ int particion (int izquierda, int derecha, int size){		// esta funcion es el nú
       
       		while (1){
 
-        		ptr_izq=mmap(0,size, PROT_WRITE, MAP_SHARED,fd,0)+izquierda*size;
-		    	ptr_der=mmap(0,size, PROT_WRITE, MAP_SHARED,fd,0)+derecha*size;
+        		ptr_izq=mmap(0,size, PROT_READ, MAP_SHARED,fd,0)+izquierda*size;
+		    	ptr_der=mmap(0,size, PROT_READ, MAP_SHARED,fd,0)+derecha*size;
 		    	char *a=ptr_izq;
 		    	char *b=ptr_der;
 	  	  	vizq =  atoi(a);
 	    		vder = atoi(b);
-        		pivote = vizq;
   		  
         		if (vizq < pivote){
           			izquierda++;
+         			ptr_izq=mmap(0,size, PROT_READ, MAP_SHARED,fd,0)+izquierda*size;
+          			char *a=ptr_izq;
+         			vizq =  atoi(a);
         		}
         		if (vder > pivote){
           			derecha--;
+          			ptr_der=mmap(0,size, PROT_READ, MAP_SHARED,fd,0)+derecha*size;
+          			char *b=ptr_der;
+          			vder = atoi(b);
         		}
         		if (izquierda >= derecha){
           			return derecha;  
         		} 
         		else {
-          
+          			ptr_izq=mmap(0,size, PROT_WRITE, MAP_SHARED,fd,0)+izquierda*size;
+		      		ptr_der=mmap(0,size, PROT_WRITE, MAP_SHARED,fd,0)+derecha*size;
           			sprintf(bufaa,"%d\n",vizq);
 			   	sprintf(bufbb,"%d\n",vder);			
 		    		memcpy(ptr_izq,bufbb,sizeof(bufbb));
 			   	memcpy(ptr_der,bufaa,sizeof(bufaa));
-			    	//close(fd);
           			izquierda++;
           			derecha--;
           		}
