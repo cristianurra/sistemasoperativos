@@ -6,6 +6,11 @@ Ignacio Veragua
 
 Cristhian Urra
 
+# Compilacio
+
+El programa se compilara automaticamente con sh install.sh
+
+
 # Descripcion del programa
 
 Se trabaja utilizando un minimo de ram, puesto que cada dato es introducido en la posix instantaneamente despues de haber sido creado. 
