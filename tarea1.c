@@ -132,7 +132,7 @@ int main(void)
 			ptrb=ptrb+k2*sizeint;
 			k2=k2+1;
 		}	
-		
+		printf("\n");
 		
 		
 	pid_t pidD = fork(); //Esto se ejecuta en un hijo
