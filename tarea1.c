@@ -1,3 +1,6 @@
+//Tarea 1
+//Ignacio Veragua 201604019-6
+//Cristhian Urra 201721076-1
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
