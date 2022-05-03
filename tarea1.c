@@ -35,6 +35,7 @@ int main(void)
 	 pidC = fork();									//se hace un fork para generar el proceso hijo
 	 //printf("**proceso PID =%d, pidC = %d ejecutandosen\n",getpid(),pidC);
 	 
+	 
 	 if(pidC>0) //Esto se ejecuta solo en el proceso padre
 		{	
 		int SMOBJ_SIZE=n*sizeint+20;	//se define el tamaño de cada memoria posix. Se considera el tamaño de cada dato multiplicado por el total de datos. 
@@ -131,8 +132,28 @@ int main(void)
 			ptrb=ptrb+k2*sizeint;
 			k2=k2+1;
 		}	
+		
+		
+		
+	pid_t pidD = fork();
+	if (pidD == 0)
+	{
+		quicksort(0,n-1,sizeint);
+		int y=0;
+		while(y<n)
+		{
+			leer_posix2(y,sizeint);
+			y=y+1;
+		}
+	exit(0);
+	}
+		
 				
-	 }
+	 } //aqui termina el proceso padre
+	 
+	 
+	 
+	 
 	 
 	  
 	 else if(pidC==0)//Esto se ejecuta solo en el proceso hijo
@@ -386,5 +407,4 @@ void quicksort(int izquierda,int derecha,int size){	// compara e intercambia los
       quicksort(indice+1,derecha,size);
       }
 }
-
 
