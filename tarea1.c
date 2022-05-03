@@ -13,9 +13,12 @@
 
 void bubble_sort(int fila,int size);
 void leer_posix(int fila,int size);
+void leer_posix2(int columna,int size);
+int particion(int izquierda, int derecha, int size);
+void quicksort(int izquierda,int derecha,int size);
 
-#define MEMORIA1 "/urra_memoria1"			//Se crearan dos memorias compartidas posix
-#define MEMORIA2 "/urra_memoria2"
+#define MEMORIA1 "/Memoriarrr_1"			//Se crearan dos memorias compartidas posix
+#define MEMORIA2 "/Memoriarrr_2"
 
 
 int n;		//corresponde al n solicitado en la tarea
@@ -31,6 +34,7 @@ int main(void)
 	 //printf("**proceso PID =%d comienza\n",getpid());
 	 pidC = fork();									//se hace un fork para generar el proceso hijo
 	 //printf("**proceso PID =%d, pidC = %d ejecutandosen\n",getpid(),pidC);
+	 
 	 
 	 if(pidC>0) //Esto se ejecuta solo en el proceso padre
 		{	
@@ -128,13 +132,27 @@ int main(void)
 			ptrb=ptrb+k2*sizeint;
 			k2=k2+1;
 		}	
+		printf("\n");
+		
+		
+	pid_t pidD = fork(); //Esto se ejecuta en un hijo
+	if (pidD == 0)
+	{	
+		quicksort(0,n-1,sizeint);
+	exit(0);
+	}
+		
 				
-	 }
+	 } //aqui termina el proceso padre
+	 
+	 
+	 
+	 
 	 
 	  
 	 else if(pidC==0)//Esto se ejecuta solo en el proceso hijo
 	{
-	wait(2);
+	sleep(1);
 	int f=0;
 	while(f<1000)
 	{	int i=0;
@@ -155,17 +173,37 @@ int main(void)
 	 {
 		 printf("El proceso hijo no pudo ser creado\n");
 	 }
-	wait(3);
-	 
+	//sleep(5);
+	int status=0;
+	while ((pidC = wait(&status)) > 0);  //Para esperar a que termine cada hijo
+
+	
 	printf("\n\n========== Conjunto 1 ordenado con Bubble Sort ==========\n");
 	int j=0;
 	while(j<n){
 		leer_posix(j,sizeint);
 		j=j+1;
 	}
-	printf("\nProceso padre finalizado\n"); 
+
+	
+	//sleep(1);
+	printf("\n\n========== Conjunto 2 ordenado con QuickSort ==========\n");
+	int y=0;
+	while(y<n)
+	{	
+		leer_posix2(y,sizeint);
+		y=y+1;
+	}
+	
+	printf("\n\nProceso padre finalizado\n"); 	
 	 return 0; 
  }
+
+
+ /* ======================================================================*/
+ /* ====================== FUNCIONES AUXILIARES ==========================*/
+ /* ======================================================================*/
+
  
 void bubble_sort(int fila,int size)	//compara dos valores consecutivos
 {
@@ -261,3 +299,120 @@ void leer_posix(int fila,int size)	//Esta funcion es para desplegar en pantalla 
 		printf("%d, ",aa);
 		close(fd);
 }
+
+void leer_posix2(int columna,int size)
+{
+		int fd;
+		char *ptr1;
+		char *ptr2;
+		char bufaa[size];
+		char bufbb[size];
+		struct stat shmobj_st;	
+		fd = shm_open(MEMORIA2, O_RDWR,0);
+
+		
+		if(fd == -1){
+			printf("Error fd %s\n", strerror(errno));
+			exit(1);
+			}
+			
+		if(fstat(fd, &shmobj_st)==1)
+			{
+			printf("error fstat \n");
+			exit(1);
+			}
+		
+		ptr1=mmap(NULL,shmobj_st.st_size, PROT_READ, MAP_SHARED,fd,0)+columna*size;
+		
+		if(ptr1==MAP_FAILED)
+		{
+			printf("Fallo el proceso de mapeo leyendo el proceso %s\n",strerror(errno));
+			exit(1);
+		}
+		
+		char *a=ptr1;
+		int aa =  atoi(a);
+
+		printf("%d, ",aa);
+		close(fd);
+}
+
+int particion (int izquierda, int derecha, int size){		// esta funcion es el núclero del quicksort:
+      	int fd;						// compara los elementos del conjunto recorriendo desde los extremos
+	  	char *ptr_izq;					// e intercambiando las posiciones según corresponda
+	  	char *ptr_der;
+	  	char bufaa[size];
+	  	char bufbb[size];
+	  	struct stat shmobj_st;
+  		fd = shm_open(MEMORIA2, O_RDWR,0);
+     		if(fd == -1){
+			  printf("Error fd %s\n", strerror(errno));
+			  exit(1);
+		}
+		if(fstat(fd, &shmobj_st)==1){
+			  printf("error fstat \n");
+		  	  exit(1);
+		}
+      
+ 		ptr_izq=mmap(NULL,shmobj_st.st_size, PROT_READ, MAP_SHARED,fd,0)+izquierda*size;
+		ptr_der=mmap(NULL,shmobj_st.st_size, PROT_READ, MAP_SHARED,fd,0)+derecha*size;	
+	  	if(ptr_izq==MAP_FAILED)
+	  	{
+		 	printf("Fallo el proceso de mapeo leyendo el proceso %s\n",strerror(errno));
+		  	exit(1);
+	  	}
+		  
+		char *a=ptr_izq;
+		char *b=ptr_der;
+		int vizq =  atoi(a);
+	  	int vder = atoi(b);
+      		int pivote = vizq;
+      
+      		while (1){
+
+        		ptr_izq=mmap(0,size, PROT_READ, MAP_SHARED,fd,0)+izquierda*size;
+		    	ptr_der=mmap(0,size, PROT_READ, MAP_SHARED,fd,0)+derecha*size;
+		    	char *a=ptr_izq;
+		    	char *b=ptr_der;
+	  	  	vizq =  atoi(a);
+	    		vder = atoi(b);
+  		  
+        		while (vizq < pivote){
+          			izquierda++;
+         			ptr_izq=mmap(0,size, PROT_READ, MAP_SHARED,fd,0)+izquierda*size;
+          			char *a=ptr_izq;
+         			vizq =  atoi(a);
+        		}
+        		while (vder > pivote){
+          			derecha--;
+          			ptr_der=mmap(0,size, PROT_READ, MAP_SHARED,fd,0)+derecha*size;
+          			char *b=ptr_der;
+          			vder = atoi(b);
+        		}
+        		if (izquierda >= derecha){
+          			return derecha;  
+        		} 
+        		else {
+          			ptr_izq=mmap(0,size, PROT_WRITE, MAP_SHARED,fd,0)+izquierda*size;
+		      		ptr_der=mmap(0,size, PROT_WRITE, MAP_SHARED,fd,0)+derecha*size;
+          			sprintf(bufaa,"%d\n",vizq);
+			   	sprintf(bufbb,"%d\n",vder);			
+		    		memcpy(ptr_izq,bufbb,sizeof(bufbb));
+			   	memcpy(ptr_der,bufaa,sizeof(bufaa));
+          			izquierda++;
+          			derecha--;
+          		}
+       		}
+       		close (fd);
+}   
+
+
+void quicksort(int izquierda,int derecha,int size){	// compara e intercambia los elementos del conjunto mediante el uso de la funcion particion
+							// y lo vuelve a hacer recursivamente seccionando el conjunto.
+    if (izquierda < derecha){
+      int indice = particion(izquierda, derecha, size);
+      quicksort(izquierda,indice,size);
+      quicksort(indice+1,derecha,size);
+      }
+}
+
