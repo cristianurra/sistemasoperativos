@@ -135,16 +135,10 @@ int main(void)
 		
 		
 		
-	pid_t pidD = fork();
+	pid_t pidD = fork(); //Esto se ejecuta en un hijo
 	if (pidD == 0)
-	{
+	{	
 		quicksort(0,n-1,sizeint);
-		int y=0;
-		while(y<n)
-		{
-			leer_posix2(y,sizeint);
-			y=y+1;
-		}
 	exit(0);
 	}
 		
@@ -179,7 +173,7 @@ int main(void)
 	 {
 		 printf("El proceso hijo no pudo ser creado\n");
 	 }
-	wait(3);
+	sleep(2);
 	 
 	printf("\n\n========== Conjunto 1 ordenado con Bubble Sort ==========\n");
 	int j=0;
@@ -187,7 +181,18 @@ int main(void)
 		leer_posix(j,sizeint);
 		j=j+1;
 	}
-	printf("\nProceso padre finalizado\n"); 
+
+	
+	sleep(5);
+	printf("\n\n========== Conjunto 2 ordenado con QuickSort ==========\n");
+	int y=0;
+	while(y<n)
+	{	
+		leer_posix2(y,sizeint);
+		y=y+1;
+	}
+	
+	printf("\n\nProceso padre finalizado\n"); 	
 	 return 0; 
  }
 
