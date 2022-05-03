@@ -13,4 +13,4 @@ Los datos son almacenados fila por fila en la memoria posix.
 Primero se tiene un int, por ejemplo 128, este dato es convertido en cadena de caracteres usando sprintf, quedando de la siguiente manera
 
 128 -> [1,2,8,&#92;,n]
-Lo cual es introducido en la posix, facilitando su lectura gracias a los saltos de linea.
+Lo cual es introducido en la posix, facilitando su lectura gracias a los saltos de linea. (&#92; corresponde a backslash, el cual no puede ser introducido directamente en un markdown
