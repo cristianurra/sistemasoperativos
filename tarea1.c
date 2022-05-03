@@ -17,8 +17,8 @@ void leer_posix2(int columna,int size);
 int particion(int izquierda, int derecha, int size);
 void quicksort(int izquierda,int derecha,int size);
 
-#define MEMORIA1 "/urra_memoria1"			//Se crearan dos memorias compartidas posix
-#define MEMORIA2 "/urra_memoria2"
+#define MEMORIA1 "/Memoriarrr_1"			//Se crearan dos memorias compartidas posix
+#define MEMORIA2 "/Memoriarrr_2"
 
 
 int n;		//corresponde al n solicitado en la tarea
@@ -152,7 +152,7 @@ int main(void)
 	  
 	 else if(pidC==0)//Esto se ejecuta solo en el proceso hijo
 	{
-	wait(2);
+	sleep(1);
 	int f=0;
 	while(f<1000)
 	{	int i=0;
@@ -173,8 +173,11 @@ int main(void)
 	 {
 		 printf("El proceso hijo no pudo ser creado\n");
 	 }
-	sleep(2);
-	 
+	//sleep(5);
+	int status=0;
+	while ((pidC = wait(&status)) > 0);  //Para esperar a que termine cada hijo
+
+	
 	printf("\n\n========== Conjunto 1 ordenado con Bubble Sort ==========\n");
 	int j=0;
 	while(j<n){
@@ -183,7 +186,7 @@ int main(void)
 	}
 
 	
-	sleep(5);
+	//sleep(1);
 	printf("\n\n========== Conjunto 2 ordenado con QuickSort ==========\n");
 	int y=0;
 	while(y<n)
@@ -335,7 +338,7 @@ void leer_posix2(int columna,int size)
 }
 
 int particion (int izquierda, int derecha, int size){		// esta funcion es el núclero del quicksort:
-      		int fd;						// compara los elementos del conjunto recorriendo desde los extremos
+      	int fd;						// compara los elementos del conjunto recorriendo desde los extremos
 	  	char *ptr_izq;					// e intercambiando las posiciones según corresponda
 	  	char *ptr_der;
 	  	char bufaa[size];
@@ -374,13 +377,13 @@ int particion (int izquierda, int derecha, int size){		// esta funcion es el nú
 	  	  	vizq =  atoi(a);
 	    		vder = atoi(b);
   		  
-        		if (vizq < pivote){
+        		while (vizq < pivote){
           			izquierda++;
          			ptr_izq=mmap(0,size, PROT_READ, MAP_SHARED,fd,0)+izquierda*size;
           			char *a=ptr_izq;
          			vizq =  atoi(a);
         		}
-        		if (vder > pivote){
+        		while (vder > pivote){
           			derecha--;
           			ptr_der=mmap(0,size, PROT_READ, MAP_SHARED,fd,0)+derecha*size;
           			char *b=ptr_der;
