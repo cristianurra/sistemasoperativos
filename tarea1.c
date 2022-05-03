@@ -374,13 +374,13 @@ int particion (int izquierda, int derecha, int size){		// esta funcion es el nú
 	  	  	vizq =  atoi(a);
 	    		vder = atoi(b);
   		  
-        		if (vizq < pivote){
+        		while (vizq < pivote){
           			izquierda++;
          			ptr_izq=mmap(0,size, PROT_READ, MAP_SHARED,fd,0)+izquierda*size;
           			char *a=ptr_izq;
          			vizq =  atoi(a);
         		}
-        		if (vder > pivote){
+        		while (vder > pivote){
           			derecha--;
           			ptr_der=mmap(0,size, PROT_READ, MAP_SHARED,fd,0)+derecha*size;
           			char *b=ptr_der;
