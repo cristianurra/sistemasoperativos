@@ -2,9 +2,9 @@
 https://github.com/cristianurra/sistemasoperativos
 Tarea numero 1 Sistemas operativos
 # Integrantes:
-Ignacio Veragua
+Ignacio Veragua 201604019-6
 
-Cristhian Urra
+Cristhian Urra 201721076-1
 
 # Compilacio
 
